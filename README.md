@@ -15,6 +15,7 @@ Playground rules that allow happy coding: Keeping track of the code changes, col
 
 - Staging and main branches are protected -> PRs and approvals are a must! before pushing changes someone needs to approve
 - Commit windows that are every day between 19:30 EST and 21:30 EST
+- Black formatting for Python is enforced!
 - Squash and Merge! 🎇
 
 
