@@ -6,7 +6,7 @@ Keeping the repository public allows other developers and enthusiasts to learn f
 ## Who?
 Colombian 🇨🇴 team with Paisa flavor and *loads* of financial DS/DE experience.
 - [Carlos](https://carloseduardo.omg.lol/) @carlose-cortesg: Gray areas, between Data Engineering, finance, and anth. Likes watching birds 🦩, Airflow, and heteroskedasticity. 
-- [Mateo](https://www.linkedin.com/in/mateo-graciano-data-scientist/) @magralo: The rabbit hole of Data Engineering + Applied Math. Likes competitive Pokemon 🧪, Bayes Theorem, and DIM. 
+- [Mateo](https://www.linkedin.com/in/mateo-graciano-data-scientist/) @magralo: The rabbit hole of Data Engineering + Applied Math. Likes competitive Pokemon 🧪, Bayes Theorem, and Deportivo Independiente Medellin. 
 - [David](https://www.linkedin.com/in/david-baena-castro-800174168/) @david16baena: Math, Math and Math. Cake Enthusiast 🍰 (Really!)
 - [Juliana](https://www.linkedin.com/in/julianavallejo/) @XXXX: . XXXX
 
