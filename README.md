@@ -8,7 +8,6 @@ Colombian 🇨🇴 team with Paisa flavor and *loads* of financial DS/DE experie
 - [Carlos](https://carloseduardo.omg.lol/) @carlose-cortesg: Gray areas, between Data Engineering, finance, and anth. Likes watching birds 🦩, Airflow, and heteroskedasticity. 
 - [Mateo](https://www.linkedin.com/in/mateo-graciano-data-scientist/) @magralo: The rabbit hole of Data Engineering + Applied Math. Likes competitive Pokemon 🧪, Bayes Theorem, and Deportivo Independiente Medellin. 
 - [David](https://www.linkedin.com/in/david-baena-castro-800174168/) @david16baena: Math, Math and Math. Cake Enthusiast 🍰 (Really!)
-- [Juliana](https://www.linkedin.com/in/julianavallejo/) @XXXX: . XXXX
 
 ## Repo Rules
 Playground rules that allow happy coding: Keeping track of the code changes, collaborating seamlessly, and easily revert to previous versions if necessary.
