@@ -33,3 +33,9 @@ Play to learn rather than win!
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)
+
+google-cloud-bigquery==3.11.4
+azure-eventhub==5.11.3
+db-dtypes==1.1.1
+spacy==3.6.0
+pandas==2.0.3
