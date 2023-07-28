@@ -54,10 +54,23 @@ def on_event(partition_context, event):
 
     # SELECT THE INFO THAT WE WANT TO UPLOAD
     data = json.loads(event.body_as_str())
-    data = {
-        key: data[key]
-        for key in ["asin", "reviewText", "summary", "reviewerID", "overall"]
-    }
+    
+    
+    if 'reviewText' in data.keys():
+        data = {
+            key: data[key]
+            for key in ["asin", "reviewText", "summary", "reviewerID", "overall"]
+        }
+        
+    else:
+       # print('no text')
+        data = {
+            key: data[key]
+            for key in ["asin", "summary", "reviewerID", "overall"]
+        }
+        data['reviewText'] = ''
+        
+    
 
     # ADD OFFSET FOR PERSISTENCY
     data["offset_number"] = offset
