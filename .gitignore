@@ -1,3 +1,6 @@
+#Jupyter
+.ipynb_checkpoints
+
 # Object file
 *.o
 
@@ -6,3 +9,4 @@
 
 #Auth info
 sa.json
+keys.json
