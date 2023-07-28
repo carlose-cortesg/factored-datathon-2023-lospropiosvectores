@@ -21,16 +21,28 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("--brand", help="Brand to upload reviews")
 
+
+parser.add_argument("--topics", type=str)
+
+
 args = parser.parse_args()
 
 brand = args.brand
+topics = args.topics
 
 if brand is None:
     raise ("Please make sure to use the brand parameter")
 
 
+if topics is None:
+    print("No selected Topics... we will use our entire database")
+else:
+    topics = topics.split(",")
+    print("we will look for these: {}".format(",".join(topics)))
+
+
 ## LOAD SYNTHETIC REVIEWS
-reviews = pd.read_csv("Syntetic_reviews/sample_reviews_{}.csv".format(brand))
+reviews = pd.read_csv("Syntetic_reviews/reviews_all.csv".format(brand))
 
 
 ## UPLOAD DATA TO VECTOR DATABASE
@@ -44,13 +56,15 @@ for index, row in reviews.iterrows():
     vector_db.insert(row["Review"], row["Polarity"], row["Topic"])
 
 
+vector_db.set_th()
+
 ## GET REVIEWS FROM BRAND
 
 client = bigquery.Client()
 
 
 sql = f"""
-SELECT asin, reviewText, overall
+SELECT asin, reviewText, overall,summary,reviewerID
 FROM `factored.raw_reviews`
 inner join `factored.metadata` using(asin)
 where brand = '{brand}'
@@ -64,18 +78,25 @@ df = client.query(sql).result().to_dataframe()
 # Every Review Topic (+ overall) creates a row in the database
 
 all_reviews = []
-for index, row in df.iterrows():
+for index, row in df.head(100).iterrows():
+    print(index)
     if (row["reviewText"] is not None) & (row["reviewText"] != ""):
-        reviews = vector_db.long_search(row["reviewText"])
-        if reviews is not None:
-            reviews = list(reviews.topic.unique())
-            reviews.append("Overall")
-            reviews = pd.DataFrame(reviews)
-            reviews.columns = ["topic"]
-            reviews["score"] = row["overall"]
-            reviews["asin"] = row["asin"]
-            reviews["review"] = row["reviewText"]
-            all_reviews.append(reviews)
+        topics = vector_db.long_search(row["reviewText"])
+        if topics is None:
+            topics = []
+        else:
+            topics = list(topics.topic.unique())
+        
+        topics.append("Overall")
+        reviews = {'asin':row["asin"],
+                   'reviewText': row["reviewText"],
+                   'overall': row["overall"],
+                   "summary": row["summary"], 
+                   "reviewerID":row["reviewerID"],
+                   "topics" : [topics]}
+        
+        reviews = pd.DataFrame(reviews, index = [0])
+        all_reviews.append(reviews)
 
 reviews = pd.concat(all_reviews)
 
