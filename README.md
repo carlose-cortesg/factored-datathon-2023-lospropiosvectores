@@ -32,3 +32,23 @@ Play to learn rather than win!
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)
+
+
+# How to deploy the streaming listener
+
+1. Create a VM with linux
+2. Intall anaconda
+3. Install the dependencies:
+    google-cloud-bigquery==3.11.4
+    azure-eventhub==5.11.3
+    db-dtypes==1.1.1
+    spacy==3.6.0
+    pandas==2.0.3
+4. Run the python script in deatached mode: nohup python streaming_data.py & 
+5. If you ever need to re run the script
+    - Identify the script id: pgrep -af python
+    - kill the process: kill -SIGKILL XXXX
+    - Re run (4)
+
+
+
