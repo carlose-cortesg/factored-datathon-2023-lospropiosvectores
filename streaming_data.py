@@ -48,6 +48,7 @@ def on_event(partition_context, event):
     1. Upload the streaming data to bigquery
     2. Get the review, apply the topic detection and upload the topics to a differnt table
     """
+    partition_context.update_checkpoint(event)
 
     offset = event.offset
     print("Event Offset:", offset)
