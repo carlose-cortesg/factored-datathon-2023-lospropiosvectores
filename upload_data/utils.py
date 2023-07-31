@@ -4,6 +4,7 @@ from google.cloud import bigquery
 import json
 import gzip
 import pandas as pd
+from typing import Union 
 
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "sa.json"
@@ -34,3 +35,10 @@ def upload_table(df, table_name="factored.metadata", i=0):
     )  # Make an API request.
     job.result()  # Wait for the job to complete.
     return "ok"
+
+
+def execute_query(query: str, to_dataframe: bool = True) -> Union[pd.DataFrame, None]:
+    executed_query = bq_client.query(query)
+    
+    if to_dataframe:
+        return executed_query.to_dataframe()
