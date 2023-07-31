@@ -9,3 +9,7 @@
 
 #Auth info
 *.json
+*.xlsx
+*.xls
+*.xlsb
+*.csv
