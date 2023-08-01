@@ -8,7 +8,7 @@ import spacy
 from google.cloud import bigquery
 import os
 from fast_sentence_transformers import FastSentenceTransformer as SentenceTransformer
-
+from tqdm import tqdm
 
 from vectorDB.classes import VectorDatabase
 
@@ -21,42 +21,34 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("--brand", help="Brand to upload reviews")
 
-
-parser.add_argument("--topics", type=str)
-
-
 args = parser.parse_args()
 
 brand = args.brand
-topics = args.topics
-
-if brand is None:
-    raise ("Please make sure to use the brand parameter")
-
-
-if topics is None:
-    print("No selected Topics... we will use our entire database")
-else:
-    topics = topics.split(",")
-    print("we will look for these: {}".format(",".join(topics)))
-
-
-## LOAD SYNTHETIC REVIEWS
-reviews = pd.read_csv("Syntetic_reviews/reviews_all.csv".format(brand))
-
 
 ## UPLOAD DATA TO VECTOR DATABASE
 model = SentenceTransformer("all-MiniLM-L6-v2", device="cpu", quantize=True)
 
 
 nlp = spacy.load("en_core_web_lg")
+
+
+
+questions = {
+'Fit' : 'Does it fit well?',
+'Comfortable' : 'Is it comfortable?',
+'Material Quality' : '''How is the material's quality?''',
+'Price and Value' : 'How is the price',
+'Fiability':'Does it look like the pictures?',
+'Ease of use':'Is it easy to use?',
+'Durability':'How is the durability?'
+}
+
 vector_db = VectorDatabase(nlp, model)
+print('uploading vectors to DB')
 
-for index, row in reviews.iterrows():
-    vector_db.insert(row["Review"], row["Polarity"], row["Topic"])
+for i in questions:
+    vector_db.insert(questions[i],i)
 
-
-vector_db.set_th()
 
 ## GET REVIEWS FROM BRAND
 
@@ -78,24 +70,20 @@ df = client.query(sql).result().to_dataframe()
 # Every Review Topic (+ overall) creates a row in the database
 
 all_reviews = []
-for index, row in df.head(100).iterrows():
-    print(index)
+for index, row in tqdm(df.iterrows(), total=df.shape[0]):
     if (row["reviewText"] is not None) & (row["reviewText"] != ""):
-        topics = vector_db.long_search(row["reviewText"])
-        if topics is None:
-            topics = []
-        else:
-            topics = list(topics.topic.unique())
+        topics_score = vector_db.long_search(row["reviewText"])
         
-        topics.append("Overall")
+        
+
         reviews = {'asin':row["asin"],
                    'reviewText': row["reviewText"],
                    'overall': row["overall"],
                    "summary": row["summary"], 
-                   "reviewerID":row["reviewerID"],
-                   "topics" : [topics]}
+                   "reviewerID":row["reviewerID"]}
         
         reviews = pd.DataFrame(reviews, index = [0])
+        reviews = pd.concat([reviews,topics_score],axis=1)
         all_reviews.append(reviews)
 
 reviews = pd.concat(all_reviews)
