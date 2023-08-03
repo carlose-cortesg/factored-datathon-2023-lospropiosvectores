@@ -1,16 +1,19 @@
 from typing import List
 from typing_extensions import Self
+from concurrent.futures import ThreadPoolExecutor
 
 import pandas as pd
 from tqdm import tqdm
 from google.cloud import bigquery
+from spacy.lang.en import English
 from scipy.spatial import distance
+from fast_sentence_transformers.FastSentenceTransformer import FastSentenceTransformer
 
 class VectorDatabase:
     '''
     Class to set a vector database to answer questions over collections of texts
     '''
-    def __init__(self,nlp, model) -> None:
+    def __init__(self, nlp:English, model:FastSentenceTransformer) -> None:
         '''
         Initializes vector database.
   
@@ -27,7 +30,7 @@ class VectorDatabase:
         self.very_similar = 0.5
         self.similar = 0.5
         
-
+        
     def __split_sentences__(self, text: str) -> List[str]:
         '''
         Split sentences by roots
@@ -77,7 +80,7 @@ class VectorDatabase:
         
         return self
     
-
+    
     def delete(self, type: str) -> Self:
         '''
         Delete questions into database latent space
@@ -169,8 +172,8 @@ class VectorDatabase:
                 
         return  aux
 
-
-    def long_search(self, query: str) -> pd.DataFrame:
+    
+    def long_search(self, query: str, return_query: bool = False) -> pd.DataFrame:
         '''
         Tokenize by root and then search the most similar question on database latent space for each subtext passed
   
@@ -191,6 +194,9 @@ class VectorDatabase:
         
         aux = pd.DataFrame(list(topics.similarity)).transpose()
         aux.columns = list(topics.topic)
+        
+        if return_query:
+            aux['text'] = query
         
         return  aux
     
@@ -217,7 +223,7 @@ class VectorDatabase:
     
         return df
 
-
+    
     def ask_reviews(self, product: str, limit: str = 'LIMIT 5000') -> pd.DataFrame:
         '''
         Ask all queried reviews with the questions save on database
@@ -229,14 +235,12 @@ class VectorDatabase:
             Pandas dataframe
         '''
         df = self.__query_reviews__(product, limit)
-    
-        all_reviews = []
-        for _, row in tqdm(df.iterrows(), total=df.shape[0]):
-            ans = self.long_search(row['reviewText'])
-            ans['text'] = row['reviewText']
-            all_reviews.append(ans)
+        
+        with ThreadPoolExecutor() as executor:
+            results = executor.map(lambda x: self.long_search(x, return_query=True), 
+                                   df['reviewText'])
 
-        all_reviews = pd.concat(all_reviews)
+        all_reviews = pd.concat(results)
     
         return all_reviews
     
