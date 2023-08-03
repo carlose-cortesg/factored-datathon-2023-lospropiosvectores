@@ -181,7 +181,7 @@ class VectorDatabase:
             Pandas dataframe
         '''
         topics = []
-        for str in self.split_sentences(query):
+        for str in self.__split_sentences__(query):
             topics_this = self.search(str)
             topics.append(topics_this)
             
