@@ -1,8 +1,10 @@
 import os
+from fastapi import FastAPI
 
 from vectorDB.classes import VectorDatabase
 from vectorDB.utils import create_database, save_as_dict
-from fastapi import FastAPI
+
+
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'sa.json'
 
