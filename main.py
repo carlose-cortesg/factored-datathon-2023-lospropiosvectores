@@ -16,9 +16,9 @@ def ready():
     return {'status':'ok'}
     
 @app.get('/help')
-async def any_question(question: str, product: str, k: int = 10):
+async def any_question(question: str, product: str, k: int = 10, limit: str = 'LIMIT 5000'):
 
-    answers = vector_db.insert(question, question).ask_reviews(product)
+    answers = vector_db.insert(question, question).ask_reviews(product, limit)
     vector_db.delete(question)
 
     saved_answers = save_as_dict(answers, k)
