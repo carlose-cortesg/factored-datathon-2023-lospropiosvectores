@@ -26,11 +26,12 @@ nlp = spacy.load("en_core_web_lg")
 questions = {
 'Fit' : 'Does it fit well?',
 'Comfortable' : 'Is it comfortable?',
-'Material Quality' : '''How is the material's quality?''',
-'Price and Value' : 'How is the price',
+'Material_Quality' : '''How is the material's quality?''',
+'Price_and_Value' : 'How is the price',
 'Fiability':'Does it look like the pictures?',
-'Ease of use':'Is it easy to use?',
-'Durability':'How is the durability?'
+'Ease_of_use':'Is it easy to use?',
+'Durability':'How is the durability?',
+'Functionality':'Does it work as expected?'
 }
 
 vector_db = VectorDatabase(nlp, model)
@@ -85,8 +86,11 @@ def on_event(partition_context, event):
 
     # SET QA score
     if (data["reviewText"] is not None) & (data["reviewText"] != ""):
-        topics_score = vector_db.long_search(data["reviewText"])
-        topics_score = topics_score.to_dict('records')[0]
+        try:
+            topics_score = vector_db.long_search(data["reviewText"])
+            topics_score = topics_score.to_dict('records')[0]
+        except:
+            topics_score = None
     else:
         topics_score = None
     

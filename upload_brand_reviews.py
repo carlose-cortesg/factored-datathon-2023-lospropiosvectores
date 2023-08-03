@@ -36,11 +36,12 @@ nlp = spacy.load("en_core_web_lg")
 questions = {
 'Fit' : 'Does it fit well?',
 'Comfortable' : 'Is it comfortable?',
-'Material Quality' : '''How is the material's quality?''',
-'Price and Value' : 'How is the price',
+'Material_Quality' : '''How is the material's quality?''',
+'Price_and_Value' : 'How is the price',
 'Fiability':'Does it look like the pictures?',
-'Ease of use':'Is it easy to use?',
-'Durability':'How is the durability?'
+'Ease_of_use':'Is it easy to use?',
+'Durability':'How is the durability?',
+'Functionality':'Does it work as expected?'
 }
 
 vector_db = VectorDatabase(nlp, model)
@@ -60,6 +61,7 @@ SELECT asin, reviewText, overall,summary,reviewerID
 FROM `factored.raw_reviews`
 inner join `factored.metadata` using(asin)
 where brand = '{brand}'
+order by asin
 """
 
 df = client.query(sql).result().to_dataframe()
@@ -70,6 +72,8 @@ df = client.query(sql).result().to_dataframe()
 # Every Review Topic (+ overall) creates a row in the database
 
 all_reviews = []
+
+df = df.sample(2000)
 for index, row in tqdm(df.iterrows(), total=df.shape[0]):
     if (row["reviewText"] is not None) & (row["reviewText"] != ""):
         topics_score = vector_db.long_search(row["reviewText"])
@@ -102,3 +106,9 @@ job = client.load_table_from_dataframe(
 job.result()  # Wait for the job to complete.
 
 print("data uploaded to {}".format(f"factored.{brand}_reviews_by_topic"))
+
+
+#python upload_brand_reviews.py --brand=Casio
+#python upload_brand_reviews.py --brand="Michael Kors"
+#python upload_brand_reviews.py --brand="The North Face"
+
