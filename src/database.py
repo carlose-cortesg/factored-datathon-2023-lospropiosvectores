@@ -24,9 +24,6 @@ class VectorDatabase:
         self.vectors = {}
         self.nlp = nlp
         self.model = model
-        self.very_similar = 0.5
-        self.similar = 0.5
-        
 
     def __split_sentences__(self, text: str) -> List[str]:
         '''
@@ -65,11 +62,11 @@ class VectorDatabase:
             Vector database
         '''
         model = self.model
-        embeddings = list(model.encode([sentence])[0])
-
+        embeddings = model.encode(sentence)
+        
         if type in [values['type'] for values in self.vectors.values()]:
             raise Exception('A question for this feature have already been inserted!')
-
+        
         key = len(self.vectors) + 1
         self.vectors[key] = {'text': sentence,
                              'type': type,
@@ -77,7 +74,7 @@ class VectorDatabase:
         
         return self
     
-
+    
     def delete(self, type: str) -> Self:
         '''
         Delete questions into database latent space
@@ -112,7 +109,7 @@ class VectorDatabase:
             Vector database
         '''
         model = self.model
-        embeddings = list(model.encode([sentence])[0])
+        embeddings = model.encode(sentence)
         
         for key, value in self.vectors.items():
             if value['type'] == type:
@@ -145,8 +142,8 @@ class VectorDatabase:
         ''')
         
         return self
-
-
+                
+        
     def search(self, query: str) -> pd.DataFrame:
         '''
         Search the most similar question on database latent space for the text passed within query
@@ -158,9 +155,11 @@ class VectorDatabase:
             Pandas dataframe
         '''
         model = self.model
-        query_vector = list(model.encode([query])[0])
+        query_vector = model.encode(query)
         
-        similarities = [(key, value['text'],distance.cosine(query_vector, value['vector']),value['type']) for key, value in self.vectors.items()]
+        similarities = [(key, value['text'],
+                         distance.cosine(query_vector, value['vector']),
+                         value['type']) for key, value in self.vectors.items()]
         
 
         aux = pd.DataFrame(similarities)
@@ -169,7 +168,7 @@ class VectorDatabase:
                 
         return  aux
 
-
+    
     def long_search(self, query: str) -> pd.DataFrame:
         '''
         Tokenize by root and then search the most similar question on database latent space for each subtext passed
@@ -181,7 +180,7 @@ class VectorDatabase:
             Pandas dataframe
         '''
         topics = []
-        for str in self.split_sentences(query):
+        for str in self.__split_sentences__(query):
             topics_this = self.search(str)
             topics.append(topics_this)
             
@@ -192,9 +191,10 @@ class VectorDatabase:
         aux = pd.DataFrame(list(topics.similarity)).transpose()
         aux.columns = list(topics.topic)
         
-        return  aux
-    
 
+        return  aux
+
+    
     def __query_reviews__(self, product:str, limit: str = 'LIMIT 5000') -> pd.DataFrame:
         '''
         Query an specific product by ASIN and return outcome as dataframe
@@ -239,4 +239,3 @@ class VectorDatabase:
         all_reviews = pd.concat(all_reviews)
     
         return all_reviews
-    
