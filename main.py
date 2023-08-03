@@ -1,4 +1,5 @@
 import os
+from typing import Union
 from fastapi import FastAPI
 
 from vectorDB.classes import VectorDatabase
@@ -16,9 +17,10 @@ def ready():
     return {'status':'ok'}
     
 @app.get('/help')
-async def any_question(question: str, product: str, k: int = 10, limit: str = 'LIMIT 5000'):
+async def any_question(question: str, product: str, k: int = 10, limit: Union[int, None] = None):
 
-    answers = vector_db.insert(question, question).ask_reviews(product, limit)
+    query_lim = '' if limit is None else f'LIMIT {limit}'
+    answers = vector_db.insert(question, question).ask_reviews(product, query_lim)
     vector_db.delete(question)
 
     saved_answers = save_as_dict(answers, k)

@@ -63,8 +63,8 @@ import requests
 params = {
     'question':'does it has a good queality/price relation?',
     'product':'B0073WAK8K', 
-    'k':5,              #optional
-    'limit':'LIMIT 10'  #optional
+    'k':5,      #optional
+    'limit':10  #optional
          }
 
 result = requests.get('http://34.125.85.105:8000/help', params)
