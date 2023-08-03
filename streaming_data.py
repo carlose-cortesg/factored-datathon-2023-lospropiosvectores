@@ -15,22 +15,30 @@ from vectorDB.classes import VectorDatabase
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "sa.json"
 
 
-## LOAD SYNTHETIC REVIEWS
-reviews = pd.read_csv("Syntetic_reviews/reviews_all.csv")
-
-
 ## UPLOAD DATA TO VECTOR DATABASE
 model = SentenceTransformer("all-MiniLM-L6-v2", device="cpu", quantize=True)
 
 
 nlp = spacy.load("en_core_web_lg")
+
+
+
+questions = {
+'Fit' : 'Does it fit well?',
+'Comfortable' : 'Is it comfortable?',
+'Material_Quality' : '''How is the material's quality?''',
+'Price_and_Value' : 'How is the price',
+'Fiability':'Does it look like the pictures?',
+'Ease_of_use':'Is it easy to use?',
+'Durability':'How is the durability?',
+'Functionality':'Does it work as expected?'
+}
+
 vector_db = VectorDatabase(nlp, model)
+print('uploading vectors to DB')
 
-for index, row in reviews.iterrows():
-    vector_db.insert(row["Review"], row["Polarity"], row["Topic"])
-
-## SET THRESHOLDS
-vector_db.set_th()
+for i in questions:
+    vector_db.insert(questions[i],i)
 
 
 client = bigquery.Client()
@@ -48,6 +56,7 @@ def on_event(partition_context, event):
     1. Upload the streaming data to bigquery
     2. Get the review, apply the topic detection and upload the topics to a differnt table
     """
+    partition_context.update_checkpoint(event)
 
     offset = event.offset
     print("Event Offset:", offset)
@@ -75,18 +84,19 @@ def on_event(partition_context, event):
     # ADD OFFSET FOR PERSISTENCY
     data["offset_number"] = offset
 
-    # DETECT TOPICS
+    # SET QA score
     if (data["reviewText"] is not None) & (data["reviewText"] != ""):
-        topics = vector_db.long_search(data["reviewText"])
-        if topics is not None:
-            topics = list(topics.topic.unique())
-        else:
-            topics = []
+        try:
+            topics_score = vector_db.long_search(data["reviewText"])
+            topics_score = topics_score.to_dict('records')[0]
+        except:
+            topics_score = None
     else:
-        topics = []
-    topics.append("Overall")
+        topics_score = None
+    
     data_with_topics = data.copy()
-    data_with_topics["topics"] = topics
+    data_with_topics["topics_score"] = str (topics_score)
+
 
     # UPLOAD REVIEWS
     errors = client.insert_rows_json("factored.raw_reviews_streaming", [data])
@@ -99,7 +109,7 @@ def on_event(partition_context, event):
 
     # UPLOAD REVIEWS WITH TOPICS
     errors = client.insert_rows_json(
-        "factored.reviews_with_topics_streaming", [data_with_topics]
+        "factored.reviews_with_topics_streaming5", [data_with_topics]
     )
     if not errors:
         print("Data successfully uploaded to BigQuery.")
@@ -129,3 +139,10 @@ with consumer_client:
         on_event=on_event,
         starting_position=start_at,  # Start reading from the end of the stream
     )
+
+
+
+#SELECT asin, reviewText, reviewerID, overall, -1 as offset_number, summary ,
+#'{}' as topics_score 
+#FROM `plenary-stacker-393921.factored.raw_reviews`
+#limit 0
