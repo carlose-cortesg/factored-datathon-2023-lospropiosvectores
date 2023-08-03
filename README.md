@@ -53,3 +53,29 @@ Play to learn rather than win!
 
 
 
+# How to use API to ask any question
+
+To run the api make a GET request to http://34.125.85.105:8000/help passing the parameters
+'question' (question asked to reviews), 'product' (product id), 'k' (number of reviews show, that answers the question, **optional**), 'limit' (limits query on data to make faster inferences, **optional**)
+
+```python
+import requests
+params = {
+    'question':'does it has a good queality/price relation?',
+    'product':'B0073WAK8K', 
+    'k':5,              #optional
+    'limit':'LIMIT 10'  #optional
+         }
+
+result = requests.get('http://34.125.85.105:8000/help', params)
+```
+
+```python
+import requests
+params = {
+    'question':'does it has a good queality/price relation?',
+    'product':'B0073WAK8K'
+         }
+
+result = requests.get('http://34.125.85.105:8000/help', params)
+```
