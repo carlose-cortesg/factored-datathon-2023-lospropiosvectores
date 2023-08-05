@@ -39,12 +39,12 @@ Play to learn rather than win!
 1. Create a VM with linux
 2. Intall anaconda
 3. Install the dependencies:
-    google-cloud-bigquery==3.11.4
-    azure-eventhub==5.11.3
-    db-dtypes==1.1.1
-    spacy==3.6.0
-    pandas==2.0.3
-    fast-sentence-transformers==0.4.1
+    - google-cloud-bigquery==3.11.4
+    - azure-eventhub==5.11.3
+    - db-dtypes==1.1.1
+    - spacy==3.6.0
+    - pandas==2.0.3
+    - fast-sentence-transformers==0.4.1
 4. Run the python script in deatached mode: nohup python streaming_data.py & 
 5. If you ever need to re run the script
     - Identify the script id: pgrep -af python
@@ -79,3 +79,8 @@ params = {
 
 result = requests.get('http://34.125.85.105:8000/help', params)
 ```
+
+
+# Please check our Batch POC
+
+[Looker Studio POC](https://lookerstudio.google.com/reporting/8cd42793-78f9-4403-a55e-edbe51c9e897/page/p_tvpz4o0i8c)
